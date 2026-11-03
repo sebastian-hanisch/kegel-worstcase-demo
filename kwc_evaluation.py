@@ -201,7 +201,7 @@ def verdict_step(rows: list, N: int, mu: float) -> tuple:
     over = [r for r in rows if not r["proven"]]
     text = f"Bei N = {N} Schritten und μ = {h_text(mu) if mu else '0'} ist der Worst-Case-Wert am kleinsten bei h = {h_text(best['h'])}/L ({val(best['value'])}); bei h = 1/L sind es {val(next(r['value'] for r in rows if r['h'] == 1.0))}"
     if mu == 0.0:
-        text += f". Die beste Schrittlänge der Formel ist h = {de(PEP.gd_optimal_step(N), 2)}/L: größere Schritte als 1/L sind besser. Die Formel ist für h ≤ 1 bewiesen (Drori, Teboulle) und für 1 < h < 2 eine Vermutung; das SDP bestätigt sie hier mit größter Abweichung {sci(max(abs(r['deviation']) for r in rows))} (davon {len(over)} der {len(rows)} Schrittlängen über 1/L)"
+        text += f". Die beste Schrittlänge der Formel ist h = {de(PEP.gd_optimal_step(N), 2)}/L: größere Schritte als 1/L sind besser. Die Formel ist für h ≤ 1 bewiesen (Drori, Teboulle) und für 1 < h < 2 eine Vermutung (ein Preprint von 2025 behauptet den Beweis, hier nicht nachgeprüft); das SDP bestätigt sie hier mit größter Abweichung {sci(max(abs(r['deviation']) for r in rows))} (davon {len(over)} der {len(rows)} Schrittlängen über 1/L)"
     else:
         text += ". Für μ > 0 gibt es hier keine Vergleichsformel: die Werte sind PEP-Werte"
     return "info", text + "."

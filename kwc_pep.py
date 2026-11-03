@@ -138,7 +138,7 @@ def simulate(method: str, N: int, grad, x0: np.ndarray, h: float = 1.0) -> list:
 # ----------------------------------------------------------------------------- Formeln aus der Literatur (Vergleichswerte, keine Eingabe des Programms)
 
 def gd_formula(N: int, h: float) -> float:
-    """(L R²/2) max{1/(2 N h + 1), (1 − h)^{2N}} mit L = R = 1: für 0 ≤ h ≤ 1 bewiesen (Drori, Teboulle), für 1 < h < 2 Vermutung (Taylor, Hendrickx, Glineur), hier numerisch bestätigt."""
+    """(L R²/2) max{1/(2 N h + 1), (1 − h)^{2N}} mit L = R = 1: für 0 ≤ h ≤ 1 bewiesen (Drori, Teboulle), für 1 < h < 2 Vermutung (Taylor, Hendrickx, Glineur; ein Preprint von 2025 behauptet den Beweis, hier nicht nachgeprüft), hier numerisch bestätigt."""
     return 0.5 * max(1.0 / (2.0 * N * h + 1.0), (1.0 - h) ** (2 * N))
 
 

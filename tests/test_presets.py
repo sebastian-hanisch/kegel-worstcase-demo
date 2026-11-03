@@ -42,7 +42,7 @@ def _value(name):
 def test_the_help_texts_name_what_the_presets_produce():
     assert _value(DEFAULT) == pytest.approx(1 / 18, abs=1e-8) and "1/18" in C.PRESET_HELP[DEFAULT]
     assert _value("N = 1: das Handbeispiel (Wert 1/6)") == pytest.approx(1 / 6, abs=1e-8) and "1/6" in C.PRESET_HELP["N = 1: das Handbeispiel (Wert 1/6)"]
-    assert _value("Größere Schritte sind besser: h = 1,75") == pytest.approx(0.05006, abs=5e-6) and "0,05006" in C.PRESET_HELP["Größere Schritte sind besser: h = 1,75"]
+    assert _value("Größere Schritte, aber nicht zu große: h = 1,75") == pytest.approx(0.05006, abs=5e-6) and "0,05006" in C.PRESET_HELP["Größere Schritte, aber nicht zu große: h = 1,75"]
     ogm, fgm = _value("Beschleunigung: OGM"), _value("Nesterov (FGM) im Vergleich")
     assert ogm == pytest.approx(0.00904, abs=5e-6) and fgm == pytest.approx(0.01756, abs=5e-6) and ogm < fgm and "0,00904" in C.PRESET_HELP["Beschleunigung: OGM"] and "0,01756" in C.PRESET_HELP["Nesterov (FGM) im Vergleich"]
     assert _value("Stark konvex: μ = 0,3") < 1 / 18

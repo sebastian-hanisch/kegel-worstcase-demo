@@ -75,7 +75,7 @@ def test_step_verdict_names_the_best_step_the_optimum_and_the_status_of_the_form
     kind, text = ev.verdict_step(_scan(), 4, 0.0)
     assert kind == "info"
     for part in ("Bei N = 4 Schritten und μ = 0 ist der Worst-Case-Wert am kleinsten bei h = 1,5/L (0,03850); bei h = 1/L sind es 0,05550", "Die beste Schrittlänge der Formel ist h = 1,71/L: größere Schritte als 1/L sind besser",
-                 "für h ≤ 1 bewiesen (Drori, Teboulle) und für 1 < h < 2 eine Vermutung; das SDP bestätigt sie hier mit größter Abweichung 2,0·10⁻⁹ (davon 2 der 4 Schrittlängen über 1/L)"):
+                 "für h ≤ 1 bewiesen (Drori, Teboulle) und für 1 < h < 2 eine Vermutung (ein Preprint von 2025 behauptet den Beweis, hier nicht nachgeprüft); das SDP bestätigt sie hier mit größter Abweichung 2,0·10⁻⁹ (davon 2 der 4 Schrittlängen über 1/L)"):
         assert part in text, part
     assert "Für μ > 0 gibt es hier keine Vergleichsformel" in ev.verdict_step(_scan(0.3), 4, 0.3)[1]
 

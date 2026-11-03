@@ -23,17 +23,17 @@ _BASE = {"n": DEFAULT_N, "h": DEFAULT_H, "mu": DEFAULT_MU, "method": DEFAULT_MET
 PRESETS = {
     "Standardfall: Gradientenverfahren, Schritt 1/L, N = 4": dict(_BASE),
     "N = 1: das Handbeispiel (Wert 1/6)": dict(_BASE, n=1),
-    "Größere Schritte sind besser: h = 1,75": dict(_BASE, h=1.75),
+    "Größere Schritte, aber nicht zu große: h = 1,75": dict(_BASE, h=1.75),
     "Beschleunigung: OGM": dict(_BASE, n=8, method="ogm"),
     "Nesterov (FGM) im Vergleich": dict(_BASE, n=8, method="fgm"),
     "Stark konvex: μ = 0,3": dict(_BASE, mu=0.3),
 }
 PRESET_HELP = {
-    "Standardfall: Gradientenverfahren, Schritt 1/L, N = 4": "Das Gradientenverfahren mit der Schrittlänge 1/L nach vier Schritten: der Worst-Case-Wert ist L R²/(4N + 2) = 1/18, auf zehn Stellen aus dem SDP.",
+    "Standardfall: Gradientenverfahren, Schritt 1/L, N = 4": "Das Gradientenverfahren mit der Schrittlänge 1/L nach vier Schritten: der Worst-Case-Wert ist L R²/(4N + 2) = 1/18, auf neun Stellen aus dem SDP.",
     "N = 1: das Handbeispiel (Wert 1/6)": "Ein einziger Schritt: das SDP hat eine 3×3-Matrix und sechs Interpolationszeilen, der Wert ist 1/6, und die schlechteste Funktion ist eindimensional (Experiment 1).",
-    "Größere Schritte sind besser: h = 1,75": "Schrittlänge 1,75/L nach vier Schritten: der Wert 0,05006 ist schlechter als bei h = 1,5 (0,03846), aber die beste Schrittlänge liegt über 1/L (Experiment 3).",
+    "Größere Schritte, aber nicht zu große: h = 1,75": "Schrittlänge 1,75/L nach vier Schritten: der Wert 0,05006 ist schlechter als bei h = 1,5 (0,03846), obwohl die beste Schrittlänge über 1/L liegt (für N = 4 bei 1,71): darüber verschlechtert das Überschießen den Wert (Experiment 3).",
     "Beschleunigung: OGM": "Das optimierte Gradientenverfahren nach acht Schritten: 0,00904 gegen 0,01756 (FGM) und 0,02941 (Gradientenverfahren mit 1/L): der Wert ist 1/(2θ_N²).",
-    "Nesterov (FGM) im Vergleich": "Nesterovs schnelles Gradientenverfahren nach acht Schritten: 0,01756, unter der Schranke 2/(N + 1)² = 0,0247, aber doppelt so groß wie OGM.",
-    "Stark konvex: μ = 0,3": "Mit der Stark-Konvexität μ = 0,3 fällt der Wert geometrisch: das SDP nutzt die zusätzliche Interpolationsbedingung (Experiment 5).",
+    "Nesterov (FGM) im Vergleich": "Nesterovs schnelles Gradientenverfahren nach acht Schritten: 0,01756, unter der Schranke 2/(N + 1)² = 0,0247, aber fast doppelt so groß wie OGM.",
+    "Stark konvex: μ = 0,3": "Mit der Stark-Konvexität μ = 0,3 fällt der Wert mit N schnell (die Rate ist nicht geprüft): das SDP nutzt die zusätzliche Interpolationsbedingung (Experiment 5).",
 }
 assert set(PRESETS) == set(PRESET_HELP) and all(p["n"] in range(N_MIN, N_MAX + 1) and p["h"] in H_CHOICES and p["mu"] in MU_CHOICES and p["method"] in PEP.METHODS for p in PRESETS.values())
