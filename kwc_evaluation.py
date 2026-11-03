@@ -67,6 +67,16 @@ def slope(xs, ys) -> float | None:
 
 # ----------------------------------------------------------------------------- Ergebnis und Raten
 
+STATUS_TEXT = {"optimal": "optimal", "rounding": "Rechengrenze erreicht", "stalled": "stehen geblieben (Genauigkeit nicht bestimmt)", "nan": "abgebrochen (Genauigkeit nicht bestimmt)",
+               "linalg": "abgebrochen (Genauigkeit nicht bestimmt)", "max_iter": "Iterationsgrenze erreicht", "left_cone": "Kegel verlassen"}
+
+
+def status_text(status: str) -> str:
+    """Der Status des Lösers in Worten. „Rechengrenze erreicht“: gestoppt, bevor die Toleranz erreicht ist, aber Residuen und Lücke liegen unter dem Tausendfachen der Toleranz;
+    die übrigen Abbrüche sagen nichts über die Genauigkeit (die Anzeige nennt das so, statt ein Kürzel wie „nan“ zu zeigen)."""
+    return STATUS_TEXT.get(status, status)
+
+
 def result_row(res: PEP.PepResult, ref) -> dict:
     return {"N": res.pep.N, "value": res.value, "dual": res.dual_value, "gap": res.gap, "reference": ref, "deviation": None if ref is None else res.value - ref, "status": res.status,
             "iterations": res.iterations, "seconds": res.seconds, "rank": res.rank, "relative_gap": abs(res.gap) / max(res.value, 1e-300), "gram": res.pep.k, "rows": res.pep.n_rows, "variables": len(res.pep.problem.c), "bound": res.bound}
@@ -169,9 +179,10 @@ def verdict_result(s: Settings, row: dict) -> tuple:
         head += f"; die Formel der Literatur {name} gibt {val(row['reference'])} (Abweichung {sci(abs(row['deviation']))})"
     text = head + f". Das SDP hat eine {row['gram']}×{row['gram']}-Matrix, {row['rows']} Interpolationszeilen und {row['iterations']} Iterationen; Dualwert und Primalwert unterscheiden sich um {sci(abs(row['gap']))}, die Gram-Matrix hat Rang {row['rank']}."
     if row["status"] != "optimal":
-        if row["relative_gap"] < 1e-4:
-            return "success", text + f" Der Löser meldet den Status „{row['status']}“ (er stoppt, bevor die Toleranz erreicht ist); Primal- und Dualwert stimmen dennoch auf {sci(row['relative_gap'])} (relativ) überein."
-        return "warning", text + f" **Status des Lösers: {row['status']}**, relative Lücke {sci(row['relative_gap'])}: der Wert liegt unter der Toleranz des Lösers, die letzten Stellen sind nicht verlässlich."
+        name = status_text(row["status"])
+        if row["status"] == "rounding" or row["relative_gap"] < 1e-4:
+            return "success", text + f" Der Löser stoppt, bevor die Toleranz erreicht ist (Status: {name}); Primal- und Dualwert stimmen dennoch auf {sci(row['relative_gap'])} (relativ) überein."
+        return "warning", text + f" **Status des Lösers: {name}**, relative Lücke {sci(row['relative_gap'])}: der Wert liegt unter der Toleranz des Lösers, die letzten Stellen sind nicht verlässlich."
     return "success", text
 
 
@@ -230,4 +241,4 @@ def verdict_mu(rows: list) -> tuple:
     for r in rows:
         parts.append(f"μ = {h_text(r['mu']) if r['mu'] else '0'}: " + ", ".join(f"N = {n}: {val(v['value'])}" for n, v in r["values"].items()))
     return "info", ("Gradientenverfahren mit Schritt 1/L, PEP-Werte: " + "; ".join(parts) + ". Je größer μ, desto kleiner der Wert: das SDP nutzt die zusätzliche Interpolationsbedingung der Stark-Konvexität. "
-                    "Bei μ = 0,5 und N ≥ 6 liegt der Wert unter der Toleranz des Lösers (Status „stalled“); die Tabelle endet dort.")
+                    "Bei μ = 0,5 und N ≥ 6 liegt der Wert unter der Toleranz des Lösers (der Löser stoppt an der Rechengrenze); die Tabelle endet dort.")

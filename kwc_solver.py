@@ -25,6 +25,9 @@ import kwc_cones as C
 SCALINGS = ("nt", "jordan", "vector")
 STEP_FRACTION = 0.99
 OPTIMAL, MAX_ITER, STALLED, LEFT_CONE, LINALG, NAN = "optimal", "max_iter", "stalled", "left_cone", "linalg", "nan"
+ROUNDING = "rounding"                  # gestoppt an der Rechengrenze: Residuen und Lücke unter ACCEPT_FACTOR · tol, aber nicht unter tol
+ACCEPT_FACTOR = 1e3
+MECHANICAL_STOPS = (STALLED, LINALG, NAN)    # Abbrüche, die der letzte Iterationspunkt sinnvoll einordnet (die Mechanik sagt nichts über die Genauigkeit)
 
 
 @dataclass(frozen=True, eq=False)
@@ -37,6 +40,7 @@ class PDResult:
     scaling: str
     history: list = field(default_factory=list)          # je Iteration: it, pres, dres, gap (sᵀz), pobj, dobj, alpha
     iterates: tuple = ()                                  # (s, z) je Iteration, nur mit record = True
+    stop: str = ""                                        # der mechanische Grund des Abbruchs (wie `status` vor der Einordnung nach den Residuen)
 
     @property
     def value(self) -> float:
@@ -89,6 +93,10 @@ def initial_point(problem: K.ConeProblem):
 
 def solve_pd(problem: K.ConeProblem, tol: float = 1e-8, max_iter: int = 100, scaling: str = "nt", start=None, record: bool = False) -> PDResult:
     """Löst das Kegelprogramm. Abbruch, wenn Primal- und Dualresiduum (relativ) und die Lücke sᵀz (relativ zu max(1, |cᵀx|)) unter `tol` liegen.
+
+    Der Status „optimal“ heißt: alle drei unter `tol`. Bricht die Rechnung früher ab (Schritt null, nicht endliche Richtung, singuläres System: Rundung), entscheidet der letzte Punkt:
+    liegen die drei Größen unter ACCEPT_FACTOR · tol, ist der Status „rounding“ (Rechengrenze erreicht, der Wert ist verwendbar); sonst bleibt der mechanische Grund
+    („stalled“, „nan“, „linalg“) und nichts über die Genauigkeit ist behauptet. `PDResult.stop` behält den mechanischen Grund immer.
 
     Die BLAS-Threads laufen mit einem Thread: die dichten Systeme sind klein (Hunderte), mehrere Threads kosten dort mehr, als sie bringen (gemessen: 29 ms statt 0,3 ms je Lösung)."""
     with threadpool_limits(limits=1), np.errstate(all="ignore"):
@@ -202,7 +210,16 @@ def _solve_pd(problem: K.ConeProblem, tol: float, max_iter: int, scaling: str, s
                for k, m, o, d in bl):
             status = LEFT_CONE
             break
-    return PDResult(x, s, z, status, len(hist) - 1, scaling, hist, tuple(iterates))
+    stop = status
+    if status in MECHANICAL_STOPS and _within_accept(hist[-1], tol):
+        status = ROUNDING
+    return PDResult(x, s, z, status, len(hist) - 1, scaling, hist, tuple(iterates), stop)
+
+
+def _within_accept(h: dict, tol: float) -> bool:
+    """Liegen beide Residuen und die Lücke des letzten Punktes unter ACCEPT_FACTOR · tol? Dann ist der Wert so genau wie die Rechnung ihn gibt."""
+    lim = ACCEPT_FACTOR * tol
+    return bool(h["pres"] <= lim and h["dres"] <= lim and h["gap"] <= lim * max(1.0, abs(h["pobj"])))
 
 
 def farkas_ray(problem: K.ConeProblem, result: PDResult):

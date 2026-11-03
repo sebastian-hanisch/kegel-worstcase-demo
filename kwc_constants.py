@@ -8,7 +8,7 @@ DEFAULT_H = 1.0
 MU_CHOICES = (0.0, 0.1, 0.3, 0.5)
 DEFAULT_MU = 0.0
 DEFAULT_METHOD = "gd"
-MU_NMAX = {0.0: 12, 0.1: 12, 0.3: 12, 0.5: 5}          # größtes N je μ: bei μ = 0,5 und N ≥ 6 liegt der Wert unter der Toleranz des Lösers (Status „stalled“)
+MU_NMAX = {0.0: 12, 0.1: 12, 0.3: 12, 0.5: 5}          # größtes N je μ: bei μ = 0,5 und N ≥ 6 liegt der Wert unter der Toleranz des Lösers (der Löser stoppt an der Rechengrenze)
 H_SCAN = tuple(round(0.1 * i, 2) for i in range(1, 20)) + (1.95,)
 MU_TABLE_N = (1, 2, 4)                                  # N der μ-Tabelle in Experiment 5
 SLOPE_FROM = 4                                          # Steigungen der Raten ab diesem N

@@ -34,10 +34,18 @@ def test_result_verdict_names_value_formula_size_gap_and_rank():
 
 
 def test_result_verdict_for_a_solver_that_stops_early():
-    kind, text = ev.verdict_result(ev.Settings(), _row(status="stalled", relative_gap=1e-6))
-    assert kind == "success" and "Status „stalled“" in text and "auf 1,0·10⁻⁶ (relativ)" in text
+    kind, text = ev.verdict_result(ev.Settings(), _row(status="rounding", relative_gap=1e-6))
+    assert kind == "success" and "Status: Rechengrenze erreicht" in text and "auf 1,0·10⁻⁶ (relativ)" in text
     kind, text = ev.verdict_result(ev.Settings(), _row(status="stalled", relative_gap=0.01))
-    assert kind == "warning" and "**Status des Lösers: stalled**, relative Lücke 1,0·10⁻²" in text and "nicht verlässlich" in text
+    assert kind == "warning" and "**Status des Lösers: stehen geblieben (Genauigkeit nicht bestimmt)**, relative Lücke 1,0·10⁻²" in text and "nicht verlässlich" in text
+    assert "nan" not in text
+
+
+def test_status_text_never_shows_the_raw_abbreviation():
+    for raw in ("optimal", "rounding", "stalled", "nan", "linalg", "max_iter", "left_cone"):
+        text = ev.status_text(raw)
+        assert text and (raw == "optimal" or raw not in text.split()), raw
+    assert ev.status_text("nan") != "nan" and "Genauigkeit nicht bestimmt" in ev.status_text("nan")
 
 
 def test_hand_verdict_names_optimum_rank_and_the_function():

@@ -26,6 +26,7 @@ from kwc_evaluation import (
     rate_rows,
     result_row,
     sci,
+    status_text,
     step_scan,
     val,
     verdict_hand,
@@ -173,7 +174,7 @@ st.caption("Der Worst-Case-Wert des Gradientenverfahrens (Schrittlänge und μ d
 gd_rows = _rates("gd", settings.h, settings.mu)
 st.plotly_chart(build_rate(gd_rows, f"Gradientenverfahren, Schritt {h_text(settings.h)}/L", C.COLORS["gd"], settings.n, loglog=True), width="stretch", key="gd_chart")
 st.dataframe(pd.DataFrame([{"N": r["N"], "Worst-Case-Wert": val(r["value"]), "Formel": val(r["reference"]) if r["reference"] is not None else "–", "Abweichung": sci(abs(r["deviation"])) if r["deviation"] is not None else "–",
-                            "Gram-Matrix": f"{r['gram']}×{r['gram']}", "Interpolationszeilen": r["rows"], "Variablen": r["variables"], "Iterationen": r["iterations"], "Zeit (ms)": de(1e3 * r["seconds"], 0), "Status": r["status"]}
+                            "Gram-Matrix": f"{r['gram']}×{r['gram']}", "Interpolationszeilen": r["rows"], "Variablen": r["variables"], "Iterationen": r["iterations"], "Zeit (ms)": de(1e3 * r["seconds"], 0), "Status": status_text(r["status"])}
                            for r in gd_rows]), hide_index=True, width="stretch")
 verdict(verdict_rate(gd_rows, settings.h, settings.mu))
 
@@ -225,7 +226,7 @@ st.markdown(
 | **Der Beweis ist ablesbar** | Das Zertifikat ist numerisch geprüft (Gleitkomma), kein formaler Beweis. Der Löser liefert den Mittelpunkt der Menge optimaler Duallösungen: die meisten Multiplikatoren sind positiv (Experiment 5). Eine kurze Beweisskizze wie in den Arbeiten bräuchte eine dünne Duallösung. | – |
 | **Die Raten sind 1/N und 1/N²** | Das sind Grenzwerte. Gemessen sind für N = 4 bis 12 die Steigungen −0,93 (Gradientenverfahren), −1,49 (FGM) und −1,56 (OGM): OGM liegt bei N = 12 etwa bei der Hälfte von FGM (0,507; bei N = 1 sind es 0,750), aber der asymptotische Abstand zwischen 1/N und 1/N² zeigt sich erst bei größerem N. | – |
 | **Der Wert hängt von der Dimension ab** | Nein, ab Dimension N + 2: das SDP ist dort dimensionsunabhängig (die Gram-Matrix hat Größe N + 2); in kleineren Dimensionen kann der Worst-Case kleiner sein. Beim Gradientenverfahren und bei FGM hat die schlechteste Funktion Rang 1, ist also eindimensional; beim OGM ist sie nicht eindeutig (die Matrix des Lösers hat Rang N + 1; eine Nachprüfung fand auch dort eine eindimensionale schlechteste Funktion). | – |
-| **Der Löser rechnet beliebig genau** | Bei sehr kleinen Werten (μ = 0,5 und N ≥ 6, h nahe 0) stoppt der Löser vor der Toleranz („stalled“), die letzten Stellen sind dann nicht verlässlich; die App meldet es. | – |
+| **Der Löser rechnet beliebig genau** | Bei sehr kleinen Werten (μ = 0,5 und N ≥ 6, h nahe 0) stoppt der Löser vor der Toleranz (Status „Rechengrenze erreicht“ oder ohne Aussage zur Genauigkeit), die letzten Stellen sind dann nicht verlässlich; die App meldet es. | – |
 | **Die Zeit bleibt klein** | Das dichte KKT-System wächst mit N: 20 ms bei N = 1 bis 4, rund 0,3 s bei N = 12 (Experiment 2); bei N = 16 etwa eine Sekunde. Zeiten hängen vom Rechner ab und werden nur in weiten Bändern getestet. | – |
 """
 )

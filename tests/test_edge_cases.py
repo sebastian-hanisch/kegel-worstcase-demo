@@ -27,7 +27,7 @@ def test_tiny_and_large_step_lengths_follow_the_formula_where_the_solver_converg
 def test_a_big_mu_gives_small_values_whatever_the_status_of_the_solver():
     """Der Status hängt von der CPU ab: auf dem Entwicklungsrechner „stalled“, auf dem Linux-Runner der CI „optimal“; der Wert ist in beiden Fällen derselbe (Band)."""
     big = P.worst_case("gd", 6, 1.0, 0.5)
-    assert big.status in {"optimal", "stalled", "nan"} and 0 < big.value < 1e-3 and big.value == pytest.approx(0.5 ** 12 / 4, abs=2e-5)            # (1 − μ)^{2N} / 4: der Wert ist winzig
+    assert isinstance(big.status, str) and 0 < big.value < 1e-3 and big.value == pytest.approx(0.5 ** 12 / 4, abs=2e-5)            # (1 − μ)^{2N} / 4: der Wert ist winzig
     assert P.worst_case("gd", 3, 1.0, 0.9).value < P.worst_case("gd", 3, 1.0, 0.5).value
     row = ev.result_row(big, None)
     assert ev.verdict_result(ev.Settings(n=6, mu=0.5), row)[0] in {"success", "warning"}
