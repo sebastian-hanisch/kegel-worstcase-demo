@@ -90,7 +90,8 @@ def test_the_extreme_numbers_of_steps_render(n):
     assert not at.error and {m.label: m.value for m in at.metric}["Größe des SDP"].startswith(f"{n + 2}×{n + 2}")
 
 
-def test_the_corner_with_a_big_mu_and_many_steps_renders_with_a_note():
+def test_the_corner_with_a_big_mu_and_many_steps_renders():
+    """μ = 0,5 und N = 12: der Löser stoppt je nach CPU mit anderem Status; die Seite zeigt in jedem Fall ein Verdikt (Status nur bei Abweichung vom „optimal“)."""
     at = _app(mu_select=0.5, n_slider=C.N_MAX, method_select="gd")
     assert not at.error and not at.exception
-    assert any("Status" in s.value for s in list(at.success) + list(at.warning))
+    assert any("der scharfe Worst-Case-Wert" in s.value for s in list(at.success) + list(at.warning))
